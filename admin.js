@@ -33,7 +33,8 @@ $("adminClose").addEventListener("click", hideLogin);
 overlay.addEventListener("click", e => { if (e.target === overlay) hideLogin(); });
 
 function editableElements() {
-  return [...document.querySelectorAll("h1,h2,h3,h4,p,.eyebrow,.brand,.role,.memberName,.rule b,.rule p,.supplyHead,.photoTag,blockquote,.quote small,th,td,.photo label")];
+  // Text is read-only in Admin Mode. Dedicated controls remain enabled.
+  return [];
 }
 function snapshot() {
   const text = editableElements().map((el, i) => [i, el.innerHTML]);
@@ -71,7 +72,7 @@ function turnOffEditing() {
   bar.hidden = true; $("adminLoginBtn").textContent = "Admin Login"; $("adminDashboard").hidden = true; document.dispatchEvent(new Event("124-admin-state"));
 }
 async function checkSession() {
-  try { const result = await api("auth", { method: "GET" }); if (result.loggedIn) { await loadSavedContent(); original = snapshot(); turnOnEditing(); notify("Logged in. Edit text, then Save changes."); } }
+  try { const result = await api("auth", { method: "GET" }); if (result.loggedIn) { await loadSavedContent(); original = snapshot(); turnOnEditing(); notify("Admin active. Text is read-only; dropdowns, moderation, supplies and photo uploads remain available."); } }
   catch (_) { /* public visitor */ }
 }
 $("adminLoginForm").addEventListener("submit", async e => {
@@ -79,7 +80,7 @@ $("adminLoginForm").addEventListener("submit", async e => {
   try {
     await api("auth", { method: "POST", body: JSON.stringify({ password: $("adminPassword").value }) });
     $("adminPassword").value = ""; $("adminError").textContent = ""; hideLogin();
-    await loadSavedContent(); original = snapshot(); turnOnEditing(); notify("Logged in. Edit text, then Save changes.");
+    await loadSavedContent(); original = snapshot(); turnOnEditing(); notify("Admin active. Text is read-only; dropdowns, moderation, supplies and photo uploads remain available.");
   } catch (error) { $("adminError").textContent = error.message || "Login failed."; }
 });
 $("saveSiteBtn").addEventListener("click", async () => {
